@@ -1,4 +1,6 @@
-﻿namespace APIRest.Model.Dto
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace APIRest.Model.Dto
 {
     public class PeliculaDto
     {
