@@ -15,14 +15,16 @@ namespace APIRest.Controllers
     public class PeliculaController : ControllerBase
     {
         private readonly ILogger<PeliculaController> _logger;
+        private readonly IPeliculaRepositorio _peliculaRepo;
         protected APIResponse _respuesta;
 
 
         // CONSTRUCTOR
-        public PeliculaController(ILogger<PeliculaController> logger)
+        public PeliculaController(ILogger<PeliculaController> logger, IPeliculaRepositorio peliculaRepo)
         {
             _logger = logger;
             _respuesta = new();
+            _peliculaRepo = peliculaRepo;
         }
         
         // OBTENER TODAS LAS PELICULAS
@@ -30,14 +32,23 @@ namespace APIRest.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<APIResponse>> ObtenerPeliculas()
         {
-            _logger.LogInformation("Obtener todas las peliculas");
+            try
+            {
+                _logger.LogInformation("Obtener todas las peliculas");
 
-            //IEnumerable<Pelicula> peliculas =
+                IEnumerable<Pelicula> peliculas = await _peliculaRepo.ObtenerTodos();
 
-            _respuesta.CodigoHttp = HttpStatusCode.OK;
-            //_respuesta.Resultado = peliculas;
+                _respuesta.CodigoHttp = HttpStatusCode.OK;
+                _respuesta.Resultado = peliculas;
 
-            return Ok(_respuesta);
+                return Ok(_respuesta);
+            }
+            catch (Exception ex)
+            {
+                _respuesta.EsExitoso = false;
+                _respuesta.MensajesDeError = new List<string> { ex.Message.ToString() };
+            }
+            return _respuesta;
         }
 
         /*
