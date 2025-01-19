@@ -1,4 +1,6 @@
-﻿using APIRest.Model.Dto;
+﻿using System.Net;
+using APIRest.Model;
+using APIRest.Model.Dto;
 using APIRest.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
@@ -21,16 +23,23 @@ namespace APIRest.Controllers
             _logger = logger;
             _respuesta = new();
         }
-        /*
+        
         // OBTENER TODAS LAS PELICULAS
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<APIResponse>> ObtenerPeliculas()
         {
+            _logger.LogInformation("Obtener todas las peliculas");
 
+            //IEnumerable<Pelicula> peliculas = ;
+
+            _respuesta.CodigoHttp = HttpStatusCode.OK;
+            //_respuesta.Resultado = peliculas;
+
+            return Ok(_respuesta);
         }
 
-
+        /*
         // OBTENER UNA PELICULA
         [HttpGet("id:int", Name = "ObtenerPelicula")]
         [ProducesResponseType(StatusCodes.Status200OK)]

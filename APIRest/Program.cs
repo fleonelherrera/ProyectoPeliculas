@@ -1,3 +1,4 @@
+using APIRest;
 using APIRest.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,6 +16,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(option =>
 {
     option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+
+// SERVICIO PARA AUTOMAP
+builder.Services.AddAutoMapper(typeof(MappingConfig));
 
 var app = builder.Build();
 
