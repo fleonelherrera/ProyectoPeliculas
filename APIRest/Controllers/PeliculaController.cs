@@ -21,7 +21,7 @@ namespace APIRest.Controllers
             _logger = logger;
             _respuesta = new();
         }
-
+        /*
         // OBTENER TODAS LAS PELICULAS
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -83,5 +83,6 @@ namespace APIRest.Controllers
         {
 
         }
+        */
     }
 }
