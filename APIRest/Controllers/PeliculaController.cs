@@ -3,6 +3,8 @@ using APIRest.Model;
 using APIRest.Model.Dto;
 using APIRest.Models;
 using APIRest.Repositorio.IRepositorio;
+using AutoMapper;
+using Azure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -16,13 +18,15 @@ namespace APIRest.Controllers
     {
         private readonly ILogger<PeliculaController> _logger;
         private readonly IPeliculaRepositorio _peliculaRepo;
+        private readonly IMapper _mapper;
         protected APIResponse _respuesta;
 
 
         // CONSTRUCTOR
-        public PeliculaController(ILogger<PeliculaController> logger, IPeliculaRepositorio peliculaRepo)
+        public PeliculaController(ILogger<PeliculaController> logger, IMapper mapper, IPeliculaRepositorio peliculaRepo)
         {
             _logger = logger;
+            _mapper = mapper;
             _respuesta = new();
             _peliculaRepo = peliculaRepo;
         }
@@ -39,19 +43,19 @@ namespace APIRest.Controllers
                 IEnumerable<Pelicula> peliculas = await _peliculaRepo.ObtenerTodos();
 
                 _respuesta.CodigoHttp = HttpStatusCode.OK;
-                _respuesta.Resultado = peliculas;
+                _respuesta.Resultado = _mapper.Map<IEnumerable<PeliculaDto>>(peliculas);
 
                 return Ok(_respuesta);
             }
             catch (Exception ex)
             {
                 _respuesta.EsExitoso = false;
-                _respuesta.MensajesDeError = new List<string> { ex.Message.ToString() };
+                _respuesta.MensajesDeError = new List<string>() { ex.ToString() };
             }
             return _respuesta;
         }
 
-        /*
+        
         // OBTENER UNA PELICULA
         [HttpGet("id:int", Name = "ObtenerPelicula")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -59,10 +63,47 @@ namespace APIRest.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<APIResponse>> ObtenerPelicula(int id)
         {
+            try
+            {
+                // VALIDO QUE EL ID NO SEA CERO
+                if (id == 0)
+                {
+                    _logger.LogError("Error. El id no puede ser cero");
 
+                    _respuesta.CodigoHttp = HttpStatusCode.BadRequest;
+                    _respuesta.EsExitoso = false;
+
+                    return BadRequest(_respuesta);
+                }
+
+                var pelicula = await _peliculaRepo.Obtener(p => p.IdPelicula == id);
+
+                // VALIDO QUE LA PELICULA EXISTA
+                if (pelicula == null)
+                {
+                    _logger.LogError("Error al obtener la pelicula con id: " + id);
+
+                    _respuesta.CodigoHttp = HttpStatusCode.NotFound;
+                    _respuesta.EsExitoso = false;
+                    _respuesta.MensajesDeError = new List<string>() { "Pelicula no encontrada" };
+
+                    return NotFound(_respuesta);
+                }
+
+                _respuesta.CodigoHttp = HttpStatusCode.OK;
+                _respuesta.Resultado = _mapper.Map<PeliculaDto>(pelicula);
+
+                return Ok(_respuesta);
+            }
+            catch (Exception ex)
+            {
+                _respuesta.EsExitoso = false;
+                _respuesta.MensajesDeError = new List<string>() { ex.ToString() };
+            }
+            return _respuesta;
         }
 
-
+        
         // CREAR UNA PELICULA
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -71,10 +112,47 @@ namespace APIRest.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<APIResponse>> CrearPelicula([FromBody] PeliculaCreacionDto peliculaCreacionDto)
         {
+            try
+            {
+                // VALIDACIONES DEL MODELO
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
 
+                // VALIDO QUE NO EXISTE UNA PELICULA CON EL NOMBRE DADO
+                if (await _peliculaRepo.Obtener(p=> p.Titulo == peliculaCreacionDto.Titulo) != null)
+                {
+                    ModelState.AddModelError("NombreExistente", "Ya existe una pelicula con el nombre dado");
+
+                    return BadRequest(ModelState);
+                }
+
+                // VALIDO QUE SE PASE LA MODIFICACION
+                if (peliculaCreacionDto == null)
+                {
+                    return BadRequest(peliculaCreacionDto);
+                }
+
+                Pelicula nuevaPelicula = _mapper.Map<Pelicula>(peliculaCreacionDto);
+
+                await _peliculaRepo.Crear(nuevaPelicula);
+
+                _respuesta.CodigoHttp = HttpStatusCode.Created;
+                _respuesta.Resultado = nuevaPelicula;
+
+                return CreatedAtRoute("ObtenerPelicula", new { id = nuevaPelicula.IdPelicula }, _respuesta);
+
+            }
+            catch (Exception ex)
+            {
+                _respuesta.EsExitoso = false;
+                _respuesta.MensajesDeError = new List<string>() { ex.ToString() };
+            }
+            return _respuesta;
         }
 
-
+        /*
         // ELIMINAR UNA PELICULA
         [HttpDelete("{id:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
