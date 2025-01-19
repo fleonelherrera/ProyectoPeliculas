@@ -2,6 +2,7 @@
 using APIRest.Model;
 using APIRest.Model.Dto;
 using APIRest.Models;
+using APIRest.Repositorio.IRepositorio;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -31,7 +32,7 @@ namespace APIRest.Controllers
         {
             _logger.LogInformation("Obtener todas las peliculas");
 
-            //IEnumerable<Pelicula> peliculas = ;
+            //IEnumerable<Pelicula> peliculas =
 
             _respuesta.CodigoHttp = HttpStatusCode.OK;
             //_respuesta.Resultado = peliculas;
