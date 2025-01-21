@@ -152,7 +152,7 @@ namespace APIRest.Controllers
             return _respuesta;
         }
 
-        /*
+        
         // ELIMINAR UNA PELICULA
         [HttpDelete("{id:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -160,10 +160,46 @@ namespace APIRest.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> EliminarPelicula(int id)
         {
+            try
+            {
+                if (id == 0)
+                {
+                    _logger.LogError("Error. El id no puede ser cero");
 
+                    _respuesta.CodigoHttp = HttpStatusCode.BadRequest;
+                    _respuesta.EsExitoso = false;
+
+                    return BadRequest(_respuesta);
+                }
+
+                var peliculaAEliminar = await _peliculaRepo.Obtener(p => p.IdPelicula == id);
+
+                if (peliculaAEliminar == null)
+                {
+                    _logger.LogError("Error al obtener la pelicula con id: " + id);
+
+                    _respuesta.CodigoHttp = HttpStatusCode.NotFound;
+                    _respuesta.EsExitoso = false;
+                    _respuesta.MensajesDeError = new List<string>() { "Pelicula no encontrada" };
+
+                    return NotFound(_respuesta);
+                }
+
+                await _peliculaRepo.Remover(peliculaAEliminar);
+
+                _respuesta.CodigoHttp = HttpStatusCode.NoContent;
+
+                return Ok(_respuesta);
+            }
+            catch (Exception ex)
+            {
+                _respuesta.EsExitoso = false;
+                _respuesta.MensajesDeError = new List<string>() { ex.ToString() };
+            }
+            return BadRequest(_respuesta); // NO PUEDO RETORNAR LA RESPUESTA SOLA
         }
 
-
+        /*
         // MODIFICAR UNA PELICULA
         [HttpPut("{id:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
