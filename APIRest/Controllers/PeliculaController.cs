@@ -199,17 +199,30 @@ namespace APIRest.Controllers
             return BadRequest(_respuesta); // NO PUEDO RETORNAR LA RESPUESTA SOLA
         }
 
-        /*
+        
         // MODIFICAR UNA PELICULA
         [HttpPut("{id:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> ModificarPelicula(int id, [FromBody] PeliculaModificacionDto peliculaModifDto)
         {
+            if (peliculaModifDto == null || id != peliculaModifDto.IdPelicula)
+            {
+                _respuesta.EsExitoso = false;
+                _respuesta.CodigoHttp = HttpStatusCode.BadRequest;
+                return BadRequest(_respuesta);
+            }
 
+            Pelicula peliculaModificada = _mapper.Map<Pelicula>(peliculaModifDto);
+
+            await _peliculaRepo.Actualizar(peliculaModificada);
+
+            _respuesta.CodigoHttp = HttpStatusCode.NoContent;
+
+            return Ok(_respuesta);
         }
 
-
+        /*
         // MODIFICAR PARCIALMENTE UNA PELICULA
         [HttpPatch("{id:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]

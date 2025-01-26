@@ -5,6 +5,9 @@ namespace APIRest.Model.Dto
     public class PeliculaModificacionDto
     {
         [Required]
+        public int IdPelicula { get; set; }
+
+        [Required]
         [MaxLength(100)]
         public string Titulo { get; set; }
 
