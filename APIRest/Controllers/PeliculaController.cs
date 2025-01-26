@@ -222,15 +222,53 @@ namespace APIRest.Controllers
             return Ok(_respuesta);
         }
 
-        /*
+
         // MODIFICAR PARCIALMENTE UNA PELICULA
         [HttpPatch("{id:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> ModificarPeliculaParcial(int id, JsonPatchDocument<PeliculaModificacionDto> patchPelicula)
         {
+            // VALIDO QUE SE MANDE EL PATCH Y EL ID NO SEA CERO
+            if (patchPelicula == null || id == 0)
+            {
+                _respuesta.EsExitoso = false;
+                _respuesta.MensajesDeError = new List<string>() { "Bad Request" };
+                return BadRequest(_respuesta);
+            }
 
+            // OBTENGO LA PELICULA
+            var pelicula = await _peliculaRepo.Obtener(p => p.IdPelicula ==  id, tracked: false);
+
+            // VALIDO QUE LA PELICULA EXISTA
+            if (pelicula == null)
+            {
+                _respuesta.EsExitoso = false;
+                _respuesta.MensajesDeError = new List<string>() { "No existe la pelicula con el id dado" };
+
+                return BadRequest(_respuesta);
+            }
+
+            // CREO EL DTO PARA MODIFICAR
+            PeliculaModificacionDto peliculaModifDto = _mapper.Map<PeliculaModificacionDto>(pelicula);
+
+            // APLICO EL PATCH AL DTO
+            patchPelicula.ApplyTo(peliculaModifDto, ModelState);
+
+            // VALIDACION DEL ModelState
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            // VUELO A PASAR EL DTO DE MODIFICACION A PELICULA
+            Pelicula peliculaActualizada = _mapper.Map<Pelicula>(peliculaModifDto);
+
+            await _peliculaRepo.Actualizar(peliculaActualizada);
+
+            _respuesta.CodigoHttp = HttpStatusCode.NoContent;
+
+            return Ok(_respuesta);
         }
-        */
     }
 }
