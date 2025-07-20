@@ -21,6 +21,7 @@ namespace APIRest.Model
         public string Sinopsis { get; set; }
 
         public DateTime FechaEstreno { get; set; }
+        public string UrlPortada { get; set; }
 
     }
 }

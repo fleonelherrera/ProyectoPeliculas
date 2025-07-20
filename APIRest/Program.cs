@@ -25,6 +25,17 @@ builder.Services.AddAutoMapper(typeof(MappingConfig));
 // SERVICIO PARA INTERFAZ
 builder.Services.AddScoped<IPeliculaRepositorio, PeliculaRepositorio>();
 
+// HABILITO CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()  // PERMITE CUALQUIER ORIGEN
+              .AllowAnyMethod()  // PERMITE CUALQUIER METODO (GET, POST, ETC)
+              .AllowAnyHeader(); // PERMTE CUALQUIER CABECERA
+    });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -37,6 +48,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseCors("AllowAll");
 
 app.MapControllers();
 

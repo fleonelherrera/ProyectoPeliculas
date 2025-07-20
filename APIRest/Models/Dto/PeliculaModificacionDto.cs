@@ -19,5 +19,9 @@ namespace APIRest.Model.Dto
         public string Sinopsis { get; set; }
 
         public DateTime FechaEstreno { get; set; }
+
+        [Required]
+        [MaxLength(300)]
+        public string UrlPortada { get; set; }
     }
 }

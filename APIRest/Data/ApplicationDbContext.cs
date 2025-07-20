@@ -21,7 +21,8 @@ namespace APIRest.Data
                     Titulo = "Los Vengadores",
                     Director = "Joss Whedon",
                     Sinopsis = "bla bla",
-                    FechaEstreno = DateTime.Now
+                    FechaEstreno = DateTime.Now,
+                    UrlPortada = "https://www.futuro.cl/wp-content/uploads/2019/03/avengers-endgame-poster.jpg"
                 },
                 new Pelicula()
                 {
@@ -29,7 +30,8 @@ namespace APIRest.Data
                     Titulo = "Harry Potter y el caliz de fuego",
                     Director = "Mike Newell",
                     Sinopsis = "bla bla bla",
-                    FechaEstreno = DateTime.Now
+                    FechaEstreno = DateTime.Now,
+                    UrlPortada = "https://www.mubis.es/media/movies/1456/170565/harry-potter-y-el-caliz-de-fuego-l_cover.jpg"
                 });
         }
     }
